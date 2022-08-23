@@ -3,7 +3,7 @@ import flask
 from flask import request
 from flask_cors import CORS
 
-from service import requestOpenAi
+from ai import requestOpenAi
 from sms import sendSMS
 
 app = flask.Flask(__name__)
@@ -14,6 +14,19 @@ app.config["DEBUG"] = True
 sessions = {}
 
 
+def getOrSetSession(phone, text):
+    if phone not in sessions:
+        sessions[phone] = os.environ['DEFAULT_TEXT'] + f"\\nPatient: {text}"
+    else:
+        sessions[phone] += f"\\nPatient: {text}"
+    return sessions[phone]
+
+
+def setSession(phone, text):
+    sessions[phone] = text
+    return sessions[phone]
+
+
 @app.route('/', methods=['GET'])
 def home():
     return "hello SMS"
@@ -21,19 +34,20 @@ def home():
 
 @app.route('/api/v1/sms', methods=['POST'])
 def sms():
-    print(request.data)
-    body = request.get_json()
+    # body is a form data
+    body = request.form
+
+    # get mobile and message from body
     mobile = body['from']
     text = body['text']
+    linkID = body['linkId']
 
-    print(f"Received SMS from {mobile}: {text}")
-
-    currentText = sessions.get(mobile, os.environ['DEFAULT_TEXT'])
-    sessions[mobile] = currentText + f"\nPatient: {text}"
+    currentText = getOrSetSession(mobile, text)
 
     res = requestOpenAi(currentText)
-    sessions[mobile] += res
-    sendSMS(mobile, res)
+    setSession(mobile, res)
+
+    sendSMS(mobile, res, linkID)
     return "ok"
 
 

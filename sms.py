@@ -3,8 +3,7 @@ from urllib.parse import urlencode
 import requests
 
 
-def sendSMS(phone, message):
-    print(f"Sending SMS to {phone}: {message}")
+def sendSMS(phone: str, message: str, linkID: str):
     url = os.environ['SMS_API_URL']
     apiKey = os.environ['SMS_API_KEY']
     userName = os.environ['SMS_API_USERNAME']
@@ -12,8 +11,9 @@ def sendSMS(phone, message):
     data = urlencode({
         "username": userName,
         "to": phone,
-        "message": message,
+        "message": message.replace('\n', ' '),
         "from": os.environ.get('SHORT_CODE', '2202'),
+        "linkId": linkID,
     })
 
     headers = {
@@ -27,5 +27,5 @@ def sendSMS(phone, message):
         print(f"Error sending SMS: {res.text}")
         return False
 
-    print("SMS sent successfully")
+    print("SMS sent successfully", res.text)
     return True
