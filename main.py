@@ -1,10 +1,13 @@
 import os
 import flask
-from flask import request, jsonify
+from flask import request
+from flask_cors import CORS
 
 from service import requestOpenAi
+from sms import sendSMS
 
 app = flask.Flask(__name__)
+CORS(app)
 app.config["DEBUG"] = True
 
 
@@ -18,13 +21,20 @@ def home():
 
 @app.route('/api/v1/sms', methods=['POST'])
 def sms():
-    mobile = request.args.get('mobile')
-    currentText = sessions.get(mobile, 'Hello Doctor!')
-    sessions[mobile] = currentText
+    print(request.data)
+    body = request.get_json()
+    mobile = body['from']
+    text = body['text']
+
+    print(f"Received SMS from {mobile}: {text}")
+
+    currentText = sessions.get(mobile, os.environ['DEFAULT_TEXT'])
+    sessions[mobile] = currentText + f"\nPatient: {text}"
 
     res = requestOpenAi(currentText)
     sessions[mobile] += res
-    return jsonify({'text': res})
+    sendSMS(mobile, res)
+    return "ok"
 
 
 if __name__ == '__main__':
