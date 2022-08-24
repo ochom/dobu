@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts", "src/processor.js"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+}
