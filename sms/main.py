@@ -2,29 +2,13 @@ import os
 import flask
 from flask import request
 from flask_cors import CORS
-
-from ai import requestOpenAi
+import session
+import chatbot
 from sms import sendSMS
 
 app = flask.Flask(__name__)
 CORS(app)
 app.config["DEBUG"] = True
-
-
-sessions = {}
-
-
-def getOrSetSession(phone, text):
-    if phone not in sessions:
-        sessions[phone] = os.environ['DEFAULT_TEXT'] + f"\\nPatient: {text}"
-    else:
-        sessions[phone] += f"\\nPatient: {text}"
-    return sessions[phone]
-
-
-def setSession(phone, text):
-    sessions[phone] = text
-    return sessions[phone]
 
 
 @app.route('/', methods=['GET'])
@@ -39,16 +23,16 @@ def sms():
 
     # get mobile and message from body
     mobile = body['from']
-    text = body['text']
+    question = body['text']
     linkID = body['linkId']
 
-    currentText = getOrSetSession(mobile, text)
+    chatLog = session.getVal(mobile)
 
-    res = requestOpenAi(currentText)
-    setSession(mobile, res)
+    answer = chatbot.ask(question, chatLog)
+    session.setVal(mobile, session.appendToChatLog(question, answer, chatLog))
 
-    sendSMS(mobile, res, linkID)
-    return "ok"
+    sendSMS(mobile, answer, linkID)
+    return answer
 
 
 if __name__ == '__main__':

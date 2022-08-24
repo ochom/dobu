@@ -27,5 +27,5 @@ def sendSMS(phone: str, message: str, linkID: str):
         print(f"Error sending SMS: {res.text}")
         return False
 
-    print("SMS sent successfully", res.text)
+    print("SMS sent successfully")
     return True
