@@ -1,0 +1,6 @@
+.git
+__pycache__
+.vscode
+env
+env.sh
+makefile
