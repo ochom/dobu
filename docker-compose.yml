@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - 6380:6379
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./data:/data
+
+  sms:
+    build: sms
+    ports:
+      - "8080:5000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=
+
+  ussd:
+    build: ussd
+    ports:
+      - "8081:5000"
+    environment:
+      - name=value
