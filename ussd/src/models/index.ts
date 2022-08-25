@@ -7,6 +7,7 @@ export interface Appointment {
   startTime: Date;
   endTime: Date;
   patientMobile: string;
+  cancelReason?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
