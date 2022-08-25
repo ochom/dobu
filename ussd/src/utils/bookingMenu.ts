@@ -101,6 +101,7 @@ const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
         };
 
         await repo.createAppointment(app);
+        
         const date = moment(startTime).format("DD/MM/YYYY");
         const start = moment(startTime).format("h:mm a");
         const end = moment(endTime).format("h:mm a");
