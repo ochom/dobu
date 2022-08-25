@@ -1,4 +1,4 @@
-FROM node:carbon as build
+FROM node:18.9.0-alpine as build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN yarn build
 
 
 # # for running the app
-FROM node:carbon as run
+FROM node:18.9.0-alpine as run
 
 WORKDIR /app
 

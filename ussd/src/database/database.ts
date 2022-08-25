@@ -2,14 +2,19 @@ import knex, { Knex } from "knex";
 import { Appointment } from "../models";
 
 export interface Repo {
-  getAppointment(clinic: string, dateTime: Date): Promise<Appointment | null>;
+  createAppointment(data: Appointment): Promise<Boolean>;
   getMyAppointments(mobile: string): Promise<Appointment[]>;
+  cancelAppointment(mobile: string, clinic: string): Promise<Boolean>;
+  checkSlot(dateClinic: string): Promise<Boolean>;
+  bookSlot(dateClinic: string): Promise<number>;
 }
 
 export class Repository implements Repo {
   db: Knex;
+  slots: Object;
 
   constructor() {
+    this.slots = {};
     this.db = knex({
       client: "pg",
       connection: {
@@ -41,26 +46,79 @@ export class Repository implements Repo {
     });
   }
 
-  async getAppointment(
-    clinic: string,
-    dateTime: Date
-  ): Promise<Appointment | null> {
-    let app: Appointment = null;
+  async checkSlot(dateClinic: string): Promise<Boolean> {
     try {
-      // get appointment that ends after the dateTime and confirmed
-      const res = await this.db<Appointment>("appointments")
-        .where("clinic", clinic)
-        .where("endTime", ">=", dateTime)
-        .where("status", "confirmed")
+      let availableSlots: number[] = this.slots[dateClinic];
+      if (availableSlots.length === 0) {
+        availableSlots = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        this.slots[dateClinic] = availableSlots;
+        return true;
+      }
+
+      for (let i = 0; i <= 15; i++) {
+        if (availableSlots[i] === 0) {
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      console.log("error getting slot", e.message);
+      return false;
+    }
+  }
+
+  async bookSlot(dateClinic: string): Promise<number> {
+    try {
+      const isSlotAvailable: Boolean = await this.checkSlot(dateClinic);
+      if (!isSlotAvailable) {
+        return -1;
+      }
+
+      const availableSlots = this.slots[dateClinic];
+      for (let i = 0; i < availableSlots.length; i++) {
+        if (availableSlots[i] === 0) {
+          availableSlots[i] = 1;
+          return i;
+        }
+      }
+      return -1;
+    } catch (e) {
+      console.log("error getting slot", e.message);
+      return -1;
+    }
+  }
+
+  async createAppointment(data: Appointment): Promise<Boolean> {
+    try {
+      await this.db("appointments").insert(data);
+      return true;
+    } catch (e) {
+      console.log("error creating appointment: ", e.message);
+      return false;
+    }
+  }
+
+  async cancelAppointment(mobile: string, clinic: string): Promise<Boolean> {
+    try {
+      const appointment: Appointment = await this.db("appointments")
+        .where({
+          patientMobile: mobile,
+          clinic,
+        })
         .first();
 
-      if (app) {
-        app = res;
+      if (appointment) {
+        appointment.status = "cancelled";
+        appointment.updatedAt = new Date();
       }
+      await this.db("appointments")
+        .update(appointment)
+        .where({ id: appointment.id });
+      return true;
     } catch (e) {
-      console.log(e.message);
+      console.log("error updating appointment: ", e.message);
+      return false;
     }
-    return app;
   }
 
   async getMyAppointments(mobile: string): Promise<Appointment[]> {
@@ -68,6 +126,7 @@ export class Repository implements Repo {
     try {
       const res = await this.db<Appointment>("appointments")
         .where("patientMobile", mobile)
+        .where("status", "confirmed")
         .orderBy("startTime", "asc");
 
       if (res) {
