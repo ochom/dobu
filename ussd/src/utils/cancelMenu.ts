@@ -3,6 +3,7 @@ import { Repo } from "../database/database";
 import { Menu } from "./menu";
 import moment from "moment";
 import { Appointment } from "../models";
+import sendSMS from "../service/sms";
 
 const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
   const menus: Menu[] = [];
@@ -79,6 +80,14 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
             menu.args.phoneNumber,
             appointment.clinic
           );
+
+          const date = moment(appointment.startTime).format("DD/MM/YYYY")
+          const startTime = moment(appointment.startTime).format("h:mm a")
+          const endTime = moment(appointment.endTime).format("h:mm a")
+
+          const text = `Your appointment that was scheduled on ${date} from ${startTime} to ${endTime} has been cancelled successfully. Thank you for choosing DoBu`
+          sendSMS(menu.args.phoneNumber, text)
+
           return menu.end(
             `Your appointment has been cancelled. Thank you for choosing DoBu`
           );

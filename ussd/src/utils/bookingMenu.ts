@@ -1,6 +1,8 @@
+import moment from "moment";
 import UssdMenu from "ussd-menu-builder";
 import { Repo } from "../database/database";
 import { Appointment } from "../models";
+import sendSMS from "../service/sms";
 import { Menu } from "./menu";
 
 export const getClinic = (index: string): string => {
@@ -99,7 +101,11 @@ const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
         };
 
         await repo.createAppointment(app);
+        const text = `Your ${clinic} clinic appointment on ${moment(startTime).format("DD/MM/YYYY")}
+                      from ${moment(startTime).format("h:mm a")} to
+                      ${moment(endTime).format("h:mm a")} has been successfully booked`
 
+        sendSMS(menu.args.phoneNumber, text)
         menu.end(
           "Your appointment has been booked. Kindly wait for SMS confirmation. Thank you for choosing DoBu."
         );
