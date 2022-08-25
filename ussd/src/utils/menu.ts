@@ -1,6 +1,7 @@
 import UssdMenu, { UssdStateOptions } from "ussd-menu-builder";
 import { Repo } from "../database/database";
 import bookingMenu from "./bookingMenu";
+import cancelMenu from "./cancelMenu";
 
 export interface Menu {
   key: string;
@@ -57,7 +58,7 @@ export default class MyMenu {
       },
       next: {
         1: "booking.selectClinic",
-        3: "appointments.ViewAll",
+        3: "appointments.viewAll",
       },
       defaultNext: "endUSSD",
     });
@@ -66,6 +67,7 @@ export default class MyMenu {
   loadAllMenus() {
     let menus: Menu[] = [];
     menus = [...menus, ...bookingMenu(this.repo, this.menu)];
+    menus = [...menus, ...cancelMenu(this.repo, this.menu)];
 
     menus.forEach((m) => {
       this.menu.state(m.key, m.options);

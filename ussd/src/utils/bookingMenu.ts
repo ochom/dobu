@@ -3,7 +3,7 @@ import { Repo } from "../database/database";
 import { Appointment } from "../models";
 import { Menu } from "./menu";
 
-const getClinic = (index: string): string => {
+export const getClinic = (index: string): string => {
   const clinic = ["General", "Surgery", "Orthopedic"];
   return clinic[parseInt(index) - 1];
 };
