@@ -8,7 +8,7 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
   const menus: Menu[] = [];
 
   menus.push({
-    key: "appointments.ViewAll",
+    key: "appointments.viewAll",
     options: {
       run: async () => {
         const appointments = await repo.getMyAppointments(
@@ -58,7 +58,7 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
         );
       },
       next: {
-        "*^\\d{1}$": "booking.viewOne",
+        "*^\\d{1}$": "booking.cancel",
       },
     },
   });

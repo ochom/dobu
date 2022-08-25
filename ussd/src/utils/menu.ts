@@ -58,7 +58,7 @@ export default class MyMenu {
       },
       next: {
         1: "booking.selectClinic",
-        3: "appointments.ViewAll",
+        3: "appointments.viewAll",
       },
       defaultNext: "endUSSD",
     });
