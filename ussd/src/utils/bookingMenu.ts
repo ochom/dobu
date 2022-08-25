@@ -80,6 +80,13 @@ const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
         // change date format to YYYY-MM-DD
         const parts = dateTime.split("/");
         dateTime = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        const now = new Date()
+        const dateIn30 = new Date()
+        dateIn30.setTime(dateIn30.getTime() + 30 * 24 * 3600000)
+        if (new Date(dateTime) < now || new Date(dateTime) > dateIn30) {
+          const dateIn30Formatted = moment(dateIn30).format("DD/MM/YYYY")
+          return menu.end(`Sorry, you can only book appointments between today and ${dateIn30Formatted}. Please select another date.`)
+        }
 
         const dateClinic = `${dateTime}_clinic`;
 
