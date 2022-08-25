@@ -4,7 +4,11 @@ import { Appointment } from "../models";
 export interface Repo {
   createAppointment(data: Appointment): Promise<Boolean>;
   getMyAppointments(mobile: string): Promise<Appointment[]>;
-  cancelAppointment(mobile: string, clinic: string): Promise<Boolean>;
+  cancelAppointment(
+    mobile: string,
+    clinic: string,
+    reason: string
+  ): Promise<Boolean>;
   checkSlot(dateClinic: string): Promise<Boolean>;
   bookSlot(dateClinic: string): Promise<number>;
 }
@@ -31,11 +35,12 @@ export class Repository implements Repo {
         this.db.schema
           .createTable("appointments", (table) => {
             table.increments("id").primary();
+            table.string("patientMobile");
             table.string("status");
             table.string("clinic");
             table.dateTime("startTime");
             table.dateTime("endTime");
-            table.string("patientMobile");
+            table.string("cancelReason");
             table.dateTime("createdAt").defaultTo(this.db.fn.now());
             table.dateTime("updatedAt").defaultTo(this.db.fn.now());
           })
@@ -98,7 +103,11 @@ export class Repository implements Repo {
     }
   }
 
-  async cancelAppointment(mobile: string, clinic: string): Promise<Boolean> {
+  async cancelAppointment(
+    mobile: string,
+    clinic: string,
+    reason: string
+  ): Promise<Boolean> {
     try {
       const appointment: Appointment = await this.db("appointments")
         .where({
@@ -109,6 +118,7 @@ export class Repository implements Repo {
 
       if (appointment) {
         appointment.status = "cancelled";
+        appointment.cancelReason = reason;
         appointment.updatedAt = new Date();
       }
       await this.db("appointments")
