@@ -4,8 +4,10 @@
   "author": "ochom<ochomrichard752@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.27.2",
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
+    "form-data": "^4.0.0",
     "knex": "^2.2.0",
     "moment": "^2.29.4",
     "pg": "^8.8.0",
