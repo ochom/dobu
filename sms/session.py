@@ -4,13 +4,16 @@ import os
 r = redis.Redis(host=os.environ['REDIS_HOST'],
                 port=os.environ['REDIS_PORT'], db=0)
 
-
-knownInformation = f"KNOWN: if a user wants to get or see a doctor. they can dial {os.environ['USSD_CODE']}"
-startChatLog = f'{knownInformation}\nHuman: Hello how are you?\nAI: I am doing great. How can I help you today?\n'
+botName = "Dexter"
+hospitalName = "DoBu Hospital"
+ussdCode = os.environ['USSD_CODE']
+knownInformation = f"{botName} is a chatbot of {hospitalName}. {botName} can prescribe medicines to you. {botName} can also help you with your health issues."
+# knownInformation = f"Dexter is a medical chatbot for the hospital named DOBU. Dexter can advice on health issues and sometimes responds sarcastically. To see a doctor, Dexter recommends USSD {os.environ['USSD_CODE']}"
+startChatLog = f"{knownInformation}\nHuman:Hello?\nDexter: Hi, how can I help you today?\n"
 
 
 def appendToChatLog(question, answer, chatLog):
-    return f'{chatLog}Human: {question}\nAI: {answer}\n'
+    return f'{chatLog}Human: {question}\nDexter: {answer}\n'
 
 
 def getVal(phone) -> str:
