@@ -8,10 +8,13 @@ def sendSMS(phone: str, message: str, linkID: str):
     apiKey = os.environ['SMS_API_KEY']
     userName = os.environ['SMS_API_USERNAME']
 
+    message = message.replace(
+        '\n', ' ') + f"\nDial {os.environ['USSD_CODE']} to book a doctor."
+
     data = urlencode({
         "username": userName,
         "to": phone,
-        "message": message.replace('\n', ' '),
+        "message": message,
         "from": os.environ.get('SHORT_CODE', '2202'),
         "linkId": linkID,
     })

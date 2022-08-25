@@ -26,10 +26,11 @@ def sms():
     question = body['text']
     linkID = body['linkId']
 
-    chatLog = session.getVal(mobile)
+    # chatLog = session.getVal(mobile)
 
-    answer = chatbot.ask(question, chatLog)
-    session.setVal(mobile, session.appendToChatLog(question, answer, chatLog))
+    # answer = chatbot.ask(question, chatLog)
+    # session.setVal(mobile, session.appendToChatLog(question, answer, chatLog))
+    answer = chatbot.ask(question, session.startChatLog)
 
     sendSMS(mobile, answer, linkID)
     return answer
