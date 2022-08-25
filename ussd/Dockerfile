@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY *.json .
 
-COPY . .
+COPY . ./
 
 RUN yarn install
 
@@ -16,7 +16,7 @@ FROM node:carbon as run
 
 WORKDIR /app
 
-COPY *.json .
+COPY *.json ./
 
 RUN yarn install --production
 
