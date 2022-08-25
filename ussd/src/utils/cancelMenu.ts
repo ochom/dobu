@@ -22,13 +22,14 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
 
         let text = "";
         appointments.forEach((app, index) => {
-          text += `\n${index + 1}. ${app.clinic} Clinic ${app.startTime}`;
+          const startTime = moment(app.startTime).format("DD/MM/YYYY h:mm a")
+          text += `\n${index + 1}. ${app.clinic} Clinic (${startTime})`;
         });
 
         menu.con(`Select appointment for details:${text}`);
       },
       next: {
-        "*^\\d{1}$": "booking.viewOne",
+        "*^\\d{1}$": "appointments.viewOne",
       },
     },
   });
@@ -37,6 +38,8 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
     key: "appointments.viewOne",
     options: {
       run: async () => {
+        console.log("view one", menu.val);
+
         const appointments = await repo.getMyAppointments(
           menu.args.phoneNumber
         );
@@ -49,16 +52,16 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
 
         const clinic = appointments[index].clinic;
         const date = moment(appointments[index].startTime).format("DD/MM/YYYY");
-        const startTime = moment(appointments[index].startTime).format("HH:mm");
-        const endTime = moment(appointments[index].endTime).format("HH:mm");
+        const startTime = moment(appointments[index].startTime).format("h:mm a");
+        const endTime = moment(appointments[index].endTime).format("h:mm a");
 
         await menu.session.set("appointment", appointments[index]);
-        return menu.end(
+        return menu.con(
           `Your appointment at ${clinic} Clinic is schedule on ${date} from ${startTime} to ${endTime}:\n1. Cancel Appointment`
         );
       },
       next: {
-        "*^\\d{1}$": "booking.cancel",
+        "*^\\d{1}$": "appointments.cancel",
       },
     },
   });
