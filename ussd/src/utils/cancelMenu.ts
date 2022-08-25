@@ -92,9 +92,11 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
     options: {
       run: async () => {
         const appointment: Appointment = await menu.session.get("appointment");
-        appointment.status = "cancelled";
-        appointment.cancelReason = menu.val;
-        await repo.cancelAppointment(menu.args.phoneNumber, appointment.clinic);
+        await repo.cancelAppointment(
+          menu.args.phoneNumber,
+          appointment.clinic,
+          menu.val
+        );
 
         const date = moment(appointment.startTime).format("DD/MM/YYYY");
         const startTime = moment(appointment.startTime).format("h:mm a");
