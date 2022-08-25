@@ -48,7 +48,7 @@ export class Repository implements Repo {
 
   async checkSlot(dateClinic: string): Promise<Boolean> {
     try {
-      let availableSlots: number[] = this.slots[dateClinic];
+      let availableSlots: number[] = this.slots[dateClinic] || [];
       if (availableSlots.length === 0) {
         availableSlots = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         this.slots[dateClinic] = availableSlots;
