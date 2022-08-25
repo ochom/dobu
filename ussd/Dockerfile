@@ -2,9 +2,9 @@ FROM node:carbon as build
 
 WORKDIR /app
 
-COPY *.json .
+COPY *.json ./
 
-COPY . ./
+COPY . .
 
 RUN yarn install
 
