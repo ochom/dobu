@@ -8,7 +8,7 @@ completion = openai.Completion()
 
 
 def ask(question, chatLog):
-    prompt = f'{chatLog}Human: {question}\nAI:'
+    prompt = f'{chatLog}Human: {question}\nDexter:'
     req = completion.create(
         prompt=prompt,
         engine='davinci',
@@ -18,7 +18,7 @@ def ask(question, chatLog):
         frequency_penalty=0,
         presence_penalty=0.6,
         best_of=1,
-        stop=['Human']
+        stop=['Human', "AI", "Dexter"]
     )
 
     answer = req.choices[0].text

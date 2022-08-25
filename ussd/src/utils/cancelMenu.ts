@@ -23,7 +23,7 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
 
         let text = "";
         appointments.forEach((app, index) => {
-          const startTime = moment(app.startTime).format("DD/MM/YYYY h:mm a")
+          const startTime = moment(app.startTime).format("DD/MM/YYYY h:mm a");
           text += `\n${index + 1}. ${app.clinic} Clinic (${startTime})`;
         });
 
@@ -53,7 +53,9 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
 
         const clinic = appointments[index].clinic;
         const date = moment(appointments[index].startTime).format("DD/MM/YYYY");
-        const startTime = moment(appointments[index].startTime).format("h:mm a");
+        const startTime = moment(appointments[index].startTime).format(
+          "h:mm a"
+        );
         const endTime = moment(appointments[index].endTime).format("h:mm a");
 
         await menu.session.set("appointment", appointments[index]);
@@ -72,30 +74,38 @@ const cancelMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
     options: {
       run: async () => {
         if (menu.val === "1") {
-          const appointment: Appointment = await menu.session.get(
-            "appointment"
-          );
-          appointment.status = "cancelled";
-          await repo.cancelAppointment(
-            menu.args.phoneNumber,
-            appointment.clinic
-          );
-
-          const date = moment(appointment.startTime).format("DD/MM/YYYY")
-          const startTime = moment(appointment.startTime).format("h:mm a")
-          const endTime = moment(appointment.endTime).format("h:mm a")
-
-          const text = `Your appointment that was scheduled on ${date} from ${startTime} to ${endTime} has been cancelled successfully. Thank you for choosing DoBu`
-          sendSMS(menu.args.phoneNumber, text)
-
-          return menu.end(
-            `Your appointment has been cancelled. Thank you for choosing DoBu`
+          return menu.con(
+            `What is your reason for cancelling this appointment?`
           );
         } else {
-          return menu.end(
-            `You have picked invalid option. Thank you for choosing DoBu`
-          );
+          return menu.end(`Thank you for choosing DoBu`);
         }
+      },
+      next: {
+        "*\\w+": "appointments.cancelSubmit",
+      },
+    },
+  });
+
+  menus.push({
+    key: "appointments.cancelSubmit",
+    options: {
+      run: async () => {
+        const appointment: Appointment = await menu.session.get("appointment");
+        appointment.status = "cancelled";
+        appointment.cancelReason = menu.val;
+        await repo.cancelAppointment(menu.args.phoneNumber, appointment.clinic);
+
+        const date = moment(appointment.startTime).format("DD/MM/YYYY");
+        const startTime = moment(appointment.startTime).format("h:mm a");
+        const endTime = moment(appointment.endTime).format("h:mm a");
+
+        const text = `Your appointment that was scheduled on ${date} from ${startTime} to ${endTime} has been cancelled successfully. Thank you for choosing DoBu`;
+        sendSMS(menu.args.phoneNumber, text);
+
+        return menu.end(
+          `Your appointment has been cancelled. Thank you for choosing DoBu`
+        );
       },
     },
   });

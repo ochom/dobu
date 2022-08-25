@@ -101,9 +101,13 @@ const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
         };
 
         await repo.createAppointment(app);
-        const text = `Your ${clinic} clinic appointment on ${moment(startTime).format("DD/MM/YYYY")} from ${moment(startTime).format("h:mm a")} to ${moment(endTime).format("h:mm a")} has been successfully booked`
+        
+        const date = moment(startTime).format("DD/MM/YYYY");
+        const start = moment(startTime).format("h:mm a");
+        const end = moment(endTime).format("h:mm a");
+        const text = `Your ${clinic} clinic appointment on ${date} from ${start} to ${end} has been successfully booked`;
 
-        sendSMS(menu.args.phoneNumber, text)
+        sendSMS(menu.args.phoneNumber, text);
         menu.end(
           "Your appointment has been booked. Kindly wait for SMS confirmation. Thank you for choosing DoBu."
         );
