@@ -29,7 +29,7 @@ app.post("/ussd", (req, res) => {
     });
 });
 
-const PORT = 5000;
+const PORT = 5002;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
