@@ -23,6 +23,12 @@ const getEndTime = (startTime: Date): Date => {
   return endTime;
 };
 
+const getDateIn30 = (): Date => {
+  const dateIn30 = new Date();
+  dateIn30.setTime(dateIn30.getTime() + 30 * 24 * 3600000);
+  return dateIn30;
+};
+
 const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
   const menus: Menu[] = [];
   menus.push({
@@ -50,7 +56,41 @@ const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
         );
       },
       next: {
-        "*^\\d{2}/\\d{2}/\\d{4}$": "booking.confirm",
+        "*^\\d{2}/\\d{2}/\\d{4}$": () => {
+          const parts = menu.val.split("/");
+          const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+          const now = new Date();
+          const dateIn30 = getDateIn30();
+          if (date < now || date > dateIn30) {
+            return "booking.enterValidDate";
+          }
+          return "booking.confirm";
+        },
+      },
+    },
+  });
+
+  menus.push({
+    key: "booking.confirm",
+    options: {
+      run: async () => {
+        const now = moment(new Date()).format("DD/MM/YYYY");
+        const dateIn30 = moment(getDateIn30()).format("DD/MM/YYYY");
+        menu.con(
+          `Enter a validate date between ${now} ${dateIn30} (format DD/MM/YYYY e.g 15/01/2020):`
+        );
+      },
+      next: {
+        "*^\\d{2}/\\d{2}/\\d{4}$": () => {
+          const parts = menu.val.split("/");
+          const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+          const now = new Date();
+          const dateIn30 = getDateIn30();
+          if (date < now || date > dateIn30) {
+            return "booking.enterValidDate";
+          }
+          return "booking.confirm";
+        },
       },
     },
   });
@@ -80,12 +120,13 @@ const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
         // change date format to YYYY-MM-DD
         const parts = dateTime.split("/");
         dateTime = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        const now = new Date()
-        const dateIn30 = new Date()
-        dateIn30.setTime(dateIn30.getTime() + 30 * 24 * 3600000)
+        const now = new Date();
+        const dateIn30 = getDateIn30();
         if (new Date(dateTime) < now || new Date(dateTime) > dateIn30) {
-          const dateIn30Formatted = moment(dateIn30).format("DD/MM/YYYY")
-          return menu.end(`Sorry, you can only book appointments between today and ${dateIn30Formatted}. Please select another date.`)
+          const dateIn30Formatted = moment(dateIn30).format("DD/MM/YYYY");
+          return menu.end(
+            `Sorry, you can only book appointments between today and ${dateIn30Formatted}. Please select another date.`
+          );
         }
 
         const dateClinic = `${dateTime}_clinic`;
