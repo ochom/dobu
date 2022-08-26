@@ -71,7 +71,7 @@ const bookingMenu = (repo: Repo, menu: UssdMenu): Menu[] => {
   });
 
   menus.push({
-    key: "booking.confirm",
+    key: "booking.enterValidDate",
     options: {
       run: async () => {
         const now = moment(new Date()).format("DD/MM/YYYY");
